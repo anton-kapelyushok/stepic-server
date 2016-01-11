@@ -1,6 +1,10 @@
 package main.models;
 
-public class User {
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.io.Serializable;
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public class User implements Serializable{
     public String name;
     public String password;
 
@@ -9,6 +13,9 @@ public class User {
         this.password = password;
     }
 
+    public User() {
+
+    }
     public String getName() {
         return name;
     }

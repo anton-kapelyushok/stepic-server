@@ -1,25 +1,27 @@
 package main;
 
-import main.services.AccountService;
-import main.servlets.MyServlet;
+import main.config.JerseyConfig;
 import main.servlets.SignInServlet;
 import main.servlets.SignUpServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 
 @SpringBootApplication
-public class Main implements CommandLineRunner {
 
-    @Autowired AccountService accountService;
-    @Autowired MyServlet myServlet;
+@ComponentScan(basePackages = { "main"} )
+public class Main implements CommandLineRunner{
+
     @Autowired SignInServlet signInServlet;
     @Autowired SignUpServlet signUpServlet;
+    @Autowired JerseyConfig jerseyCfg;
 
     public static void main(String[] args)  throws Exception {
         SpringApplication.run(Main.class, args);
@@ -27,10 +29,10 @@ public class Main implements CommandLineRunner {
 
     @Override
     public void run(String[] args) throws Exception{
-
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(new ServletHolder(signInServlet), "/signin");
         context.addServlet(new ServletHolder(signUpServlet), "/signup");
+        context.addServlet(new ServletHolder(new ServletContainer(jerseyCfg)), "/jersey/*");
 
         Server server = new Server(8080);
         server.setHandler(context);
