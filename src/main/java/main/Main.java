@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
 
@@ -22,6 +23,12 @@ public class Main implements CommandLineRunner{
     @Autowired SignInServlet signInServlet;
     @Autowired SignUpServlet signUpServlet;
     @Autowired JerseyConfig jerseyCfg;
+    @Autowired ServletContainer jerseyServlet;
+
+    @Bean
+    ServletContainer getJerseyServlet() {
+        return new ServletContainer(jerseyCfg);
+    }
 
     public static void main(String[] args)  throws Exception {
         SpringApplication.run(Main.class, args);
@@ -32,7 +39,7 @@ public class Main implements CommandLineRunner{
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(new ServletHolder(signInServlet), "/signin");
         context.addServlet(new ServletHolder(signUpServlet), "/signup");
-        context.addServlet(new ServletHolder(new ServletContainer(jerseyCfg)), "/jersey/*");
+        context.addServlet(new ServletHolder(jerseyServlet), "/jersey/*");
 
         Server server = new Server(8080);
         server.setHandler(context);
