@@ -13,7 +13,11 @@ import java.io.IOException;
 
 @Component
 public class SignInServlet extends HttpServlet {
-    @Autowired AccountService accountService;
+    AccountService accountService;
+    @Autowired
+    public void setAccountService(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

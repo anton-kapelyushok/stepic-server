@@ -13,7 +13,6 @@ import javax.ws.rs.core.MediaType;
 public class JerseyController {
 
     @GET
-    @Path("test")
     @Produces(MediaType.APPLICATION_JSON)
     public User test() {
         return new User("a", "d");

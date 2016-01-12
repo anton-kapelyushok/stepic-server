@@ -8,38 +8,49 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 
 
-@SpringBootApplication
-
-@ComponentScan(basePackages = { "main"} )
-public class Main implements CommandLineRunner{
+@Configuration
+@ComponentScan
+public class Main {
 
     @Autowired SignInServlet signInServlet;
     @Autowired SignUpServlet signUpServlet;
     @Autowired JerseyConfig jerseyCfg;
     @Autowired ServletContainer jerseyServlet;
+    @Autowired WebApplicationContext webAppContext;
+    @Autowired DispatcherServlet dispatcherServlet;
+
 
     @Bean
-    ServletContainer getJerseyServlet() {
+    ServletContainer jerseyServlet() {
         return new ServletContainer(jerseyCfg);
     }
 
+    @Bean
+    DispatcherServlet dispatcherServlet() {
+        return new DispatcherServlet(webAppContext);
+    }
+
     public static void main(String[] args)  throws Exception {
-        SpringApplication.run(Main.class, args);
+        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+        context.register(Main.class);
+        context.refresh();
+        context.getBean(Main.class).run(args);
      }
 
-    @Override
     public void run(String[] args) throws Exception{
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(new ServletHolder(signInServlet), "/signin");
         context.addServlet(new ServletHolder(signUpServlet), "/signup");
         context.addServlet(new ServletHolder(jerseyServlet), "/jersey/*");
+        context.addServlet(new ServletHolder(dispatcherServlet), "/spring/*");
 
         Server server = new Server(8080);
         server.setHandler(context);
